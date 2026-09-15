@@ -1,0 +1,20 @@
+# Public matrix: reproducible from the exact GEO URL in docs/data_sources.md
+/data/GSE123818_Root_single_cell_wt_datamatrix.csv.gz
+
+# R / RStudio session state
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+
+# Derived analysis products (formal analysis has not started)
+/results/
+/figures/
+/objects/
+*.rds
+*.h5seurat
+*.h5ad
+
+# Local system files
+.DS_Store
+
