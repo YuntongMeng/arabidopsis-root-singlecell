@@ -1,0 +1,17 @@
+Cluster,Number of cells wt rep. 1*,Number of cells wt rep. 2*,Total cell number,Pearson-Corr. coeff.,Identity
+0,291,305,596,0.99,Mature
+1,217,315,532,0.99,Mature
+2,287,214,501,1,Meristerm
+3,226,235,461,1,Atrichoblast
+4,210,194,404,0.98,Stele
+5,191,176,367,1,Trichoblast
+6,194,154,348,0.99,Meristem
+7,161,179,340,1,Meristem
+8,169,139,308,1,Meristem
+9,86,94,180,0.97,Cortex
+10,70,97,167,0.99,Trichoblast
+11,94,67,161,0.99,QC/Colummela
+12,75,68,143,0.99,Xylem
+13,53,85,138,0.98,Endodermis
+14,43,38,81,0.95,Mature
+* rep. 1 = Col-0; rep. 2 = pMIR166A:erGFP
