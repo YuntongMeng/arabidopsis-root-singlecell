@@ -1,0 +1,14 @@
+"cluster","identity","n_overlap","n_reference_markers","recovery"
+"1","Protoxylem",1,19,0.0526315789473684
+"1","Trichoblast",5,18,0.277777777777778
+"2","Atrichoblast",2,8,0.25
+"3","Meri. Xylem",2,20,0.1
+"3","Protophloem",1,20,0.05
+"4","Pericycle",1,14,0.0714285714285714
+"4","Protophloem",1,20,0.05
+"5","Meri. Xylem",1,20,0.05
+"8","Protoxylem",1,19,0.0526315789473684
+"9","Endodermis",5,19,0.263157894736842
+"10","Columella",4,19,0.210526315789474
+"10","QC",4,14,0.285714285714286
+"11","Cortex",4,18,0.222222222222222

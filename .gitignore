@@ -7,8 +7,9 @@
 .Ruserdata
 .Rproj.user/
 
-# Derived analysis products (formal analysis has not started)
-/results/
+# Large objects and local intermediate files
+/results/objects/
+/results/reproducibility/*.log
 /figures/
 /objects/
 *.rds
@@ -17,3 +18,6 @@
 
 # Local system files
 .DS_Store
+
+/docs/reference/Denyer2019_TableS2_extracted/
+Rplots.pdf

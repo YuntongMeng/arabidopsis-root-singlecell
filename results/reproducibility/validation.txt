@@ -1,0 +1,20 @@
+Verified on 2026-09-16 (America/Toronto).
+Fresh Rscript session explicitly called source() on the complete workflow.
+Run completed successfully through annotated UMAP, tables, and sessionInfo.
+Final cosmetic changes were separately executed: smaller bold repelled cluster
+labels and contrasting heatmap numbers. The deterministic preprocessing rerun
+checked all 14 cluster sizes against the completed analysis.
+
+Validated results:
+- Input: 27,629 genes x 4,727 cells; QC: 4,685 cells, 42 removed.
+- Cluster sizes: 914,520,476,466,432,348,334,283,218,176,162,148,127,81.
+- All 210 unique cluster pairs present; Jaccard = overlap/(200-overlap).
+- Best Denyer matches C0-C13: 1,10,3,2,6,7,4,8,12,13,11,9,1,14.
+- 14 computational clusters; 11 provisional manual broad identities.
+- Eight final figures in PNG and PDF; all visually inspected.
+- Used dplyr/tidyr key functions are explicitly namespaced; R parses successfully.
+- Large matrix, extracted workbook, R session state and serialized objects ignored.
+
+Expected informational warnings: count data.frame coerced to sparse matrix;
+QC violin uses counts because normalization has not yet occurred; UMAP uses
+R-native uwot/cosine. These did not prevent completion.

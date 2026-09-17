@@ -1,6 +1,7 @@
 # Data sources and verified preparation state
 
-Verified on 2026-09-15. Formal Seurat analysis has not started.
+Input provenance verified on 2026-09-15. First-pass Seurat clustering and
+provisional annotation completed on 2026-09-16; see README and results/.
 
 ## Primary single-cell matrix
 
