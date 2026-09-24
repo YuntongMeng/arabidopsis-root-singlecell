@@ -28,7 +28,7 @@ matrix and 135/137 are detected in at least one cell. `AT5G07985` is absent;
 Exact provenance, checksums, download instructions, and the annotation
 limitation are recorded in [docs/data_sources.md](docs/data_sources.md).
 
-## Completed first-pass analysis (2026-09-16)
+## Completed Project 2 analysis
 
 The reproducible workflow now runs **QC → normalization → 2,000 variable genes
 → PCA → clustering → markers → Denyer 14×15 comparison → manual annotation**.
@@ -73,27 +73,75 @@ org.At.tair.db, AnnotationDbi, and Seurat's plotting/UMAP dependencies.
 The earlier `01_qc_preprocessing.R` is only an import prototype; use the complete
 workflow above for analysis.
 
-- [Figures](results/figures): eight final figures, each in PNG and PDF, covering
+- [Figures](results/figures): ten final figures, each in PNG and PDF, covering
   QC violin/scatter plots, PCA elbow, cluster UMAP, the complete similarity
-  heatmap, and annotated UMAP. Every final plot is assigned and explicitly
-  printed in Source mode, with a shared classic 12-point white theme and bold
-  titles. UMAP labels use small repelled text without boxes.
+  heatmap, annotated UMAP, interaction-gene heatmap, and highlight scatter.
+  Every final plot is assigned and explicitly printed in Source mode, with a
+  shared classic 12-point white theme and bold titles. UMAP labels use small
+  repelled text without boxes.
 - [Summary tables](results/tables): QC counts, cluster sizes, top markers,
   classic-marker overlaps, all 210 similarities, best/second evidence,
-  manual annotation, final evidence, and cluster-to-identity counts.
+  manual annotation, final evidence, cluster-to-identity counts, population
+  expression summaries, preferred populations, preference strength, and
+  exploratory strong candidates/counts.
 - Large expression matrices, serialized objects, extracted reference workbook,
   and RStudio session files remain ignored; final figures and small tables are tracked.
 
-Candidate-gene population summaries, PC/resolution sensitivity checks,
-protoplasting sensitivity analysis, and quantitative elbow exploration remain
-future work.
+Project 2 has now progressed from cluster annotation to **Project 1 →
+single-cell contextualization**. Run the complete workflow from the project
+root with:
+
+```r
+source("scripts/01_qc_clustering_annotation.R")
+source("scripts/02_interaction_gene_cell_context.R")
+```
+
+The second script can also be run directly with
+`Rscript scripts/02_interaction_gene_cell_context.R`; it reconstructs the 01
+analysis when `seurat_qc` is not already available and therefore does not rely
+on an undocumented interactive session.
+
+Of the 137 Project 1 interaction genes, 136 are present among atlas features
+and 135 have at least one non-zero count. `AT5G07985` is absent from the
+expression matrix, while `AT1G66950` is a matrix feature but is all-zero in
+these cells. The analysis calculates detection rate and mean log-normalized
+expression for every detected gene in each of the 11 broad populations,
+producing an explicitly checked 135 × 11 matrix (1,485 combinations).
+
+The clustered heatmap displays a **per-gene z-score across populations**: zero
+is that gene's across-population mean and positive/negative values indicate
+relative enrichment/depletion for that gene. It does not compare absolute
+expression between different genes. Euclidean distance with ward.D2 linkage is
+used only to order heatmap genes; it does not define candidate status.
+
+For each gene, the preferred population is the population with the highest
+expression z-score. `delta_z` is the difference between its highest and
+second-highest population z-scores, and preferred-population detection rate is
+the fraction of that population's cells with a non-zero raw count. The final
+highlight scatter uses detection rate on the x-axis and `delta_z` on the
+y-axis; shape indicates Positive/Negative Project 1 interaction direction.
+Points meeting the exploratory cutoff (`delta_z >= 1` and detection rate
+`>= 0.10`) are colored by preferred population, while all other points are
+semi-transparent gray. This yields 56 exploratory strong candidates. The
+clustered heatmap and highlight scatter are figures 09 and 10; population,
+preference, candidate, and count tables are in `results/tables/`.
+
+### Next checkpoint
+
+- pathway-level cellular contextualization
+- replicate/batch sanity check
+- top-50/100/200 marker-overlap robustness
+- protoplasting sensitivity
+- add `scripts/00_prepare_inputs.R` and/or `scripts/00_verify_inputs.R`
+- final README polish
 
 ## Interpretation boundary
 
 This is an untreated, normal wild-type atlas. It can show which root cell
-populations normally express the bulk interaction candidates, but it cannot
-demonstrate that BRL3 changes the drought response within a particular cell
-type. That would require genotype- and drought-resolved single-cell data.
+populations normally express the bulk interaction candidates and provide
+cellular context, but it cannot demonstrate that a BRL3 × drought effect
+occurs within the preferred cell type. That would require genotype- and
+drought-resolved single-cell data.
 
 ## Citation
 

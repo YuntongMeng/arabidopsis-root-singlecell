@@ -1,0 +1,11 @@
+Project 2 interaction-gene cellular contextualization validation
+Interaction genes: 137
+Present in atlas: 136
+Detected in atlas: 135
+Absent: AT5G07985
+Present but all-zero: AT1G66950
+Population-summary rows: 1485
+Expression matrix: 135 x 11
+Strong candidates: 56
+Strong cutoff: delta_z >= 1 and preferred-population detection_rate >= 0.10
+Gene order only: Euclidean distance + ward.D2 hierarchical clustering
