@@ -1,146 +1,194 @@
 # Arabidopsis root single-cell contextualization
 
-This project asks where genes with a **BRL3 genotype × drought interaction** in
-bulk Arabidopsis root RNA-seq are normally detected across root cell
-populations.
+This project asks where genes with a **BRL3 genotype × drought interaction**
+from Project 1 are normally detected across Arabidopsis root cell populations.
+It uses the untreated wild-type root single-cell atlas from Denyer et al.
+(2019; GSE123818) to provide cellular context for the bulk RNA-seq signal.
 
-## Connection to Project 1
+## Analysis overview
 
-Project 1 identified 137 genes whose drought response differs between BRL3
-overexpression and wild type. This project carries that candidate set into the
-independent Denyer et al. (2019) wild-type root single-cell atlas (GSE123818) to
-add cell-population context to the bulk signal.
+The final workflow contains four scripts, which are intended to be run in
+numerical order from the project root:
 
-## Prepared inputs
+| Script | Purpose | Main validated result |
+|---|---|---|
+| `scripts/00_recover_replicate_metadata.R` | Recovers Denyer WT replicate labels and records direct versus suffix-inferred evidence | 4,727/4,727 cells assigned; 4,458 direct matches; 269 suffix-inferred; 0 ambiguous |
+| `scripts/01_qc_clustering_annotation.R` | Performs QC, normalization, dimensionality reduction, clustering, marker comparison, and provisional broad annotation | 4,685 cells; 14 computational clusters; 11 broad identities |
+| `scripts/02_interaction_gene_cell_context.R` | Adds population-level context for Project 1 interaction genes and summarizes seven selected GO pathways | 135 detected genes; 1,485 gene-population summaries; 56 exploratory strong candidates; 7 pathway contexts |
+| `scripts/03_robustness_checks.R` | Checks replicate mixing, marker-cutoff stability, and protoplasting sensitivity | 4,685/4,685 cells labelled; 14/14 marker matches stable; expected protoplasting overlaps reproduced |
 
-- GSE123818 wild-type count matrix: 27,629 TAIR features × 4,727 cells
-  (downloaded locally, intentionally not tracked in Git)
-- Project 1 interaction-gene table: 137 genes
-- Original Denyer et al. Supplementary Tables S1 and S2
-- A 3,545-gene protoplasting-induced flag set derived from Table S1 using
-  log2FC > 1 and q < 0.05
-- The original 15-cluster identity/marker framework from Table S2
+Scripts 01 and 02 keep the previously selected clustering, annotation, and
+candidate thresholds unchanged. Script 03 is a sensitivity workflow and does
+not redefine the main analysis.
 
-The candidate overlap has been verified: 136/137 genes are present in the
-matrix and 135/137 are detected in at least one cell. `AT5G07985` is absent;
-`AT1G66950` is present but all-zero.
+## Inputs and provenance
 
-Exact provenance, checksums, download instructions, and the annotation
-limitation are recorded in [docs/data_sources.md](docs/data_sources.md).
+The main inputs are:
 
-## Completed Project 2 analysis
+- GSE123818 wild-type count matrix: 27,629 TAIR features × 4,727 cells.
+- Project 1 interaction-gene table: 137 genes.
+- Denyer et al. Supplementary Tables S1 and S2.
+- A 3,545-gene protoplasting-induced reference set defined by
+  `log2FC > 1` and `q < 0.05` in Denyer Table S1.
+- Shahan et al. (2022) Data S3, used only to validate and recover the original
+  Denyer WT replicate identities.
 
-The reproducible workflow now runs **QC → normalization → 2,000 variable genes
-→ PCA → clustering → markers → Denyer 14×15 comparison → manual annotation**.
-QC retains 4,685 of 4,727 cells (42 extreme high-count/high-feature outliers
-removed; these are potential multiplets, not confirmed doublets). Filtering uses
-`nCount_RNA < 220000` and `nFeature_RNA < 11000`; no hard organelle-percentage
-cutoff is applied. LogNormalize uses scale factor 10,000, neighbors/UMAP use
-PCs 1–25, and clustering uses resolution 0.5 with `set.seed(42)`, PCA/UMAP seed 42 and clustering seed 0.
-**Exactly 15 clusters were not forced**: the independent result contains 14
-computational clusters (0–13).
+The public count matrix and the large Shahan workbook are intentionally not
+tracked in Git. Their exact provenance, checksums, and preparation notes are
+recorded in [`docs/data_sources.md`](docs/data_sources.md) and
+[`data/reference/Denyer2019_WT_replicate_recovery_report.md`](data/reference/Denyer2019_WT_replicate_recovery_report.md).
 
-Positive cluster markers (`min.pct = 0.25`, `logfc.threshold = 0.25`) are ranked
-by log2 fold change. Each cluster's top 100 markers is compared with Denyer
-C0–C14's top 100 positive significant DEGs (adjusted p-value < 0.05).
-All 210 overlaps and Jaccard scores, plus best/second-best matches and gaps,
-are calculated before interpretation and saved as evidence tables. The script verifies that both sets have 100
-unique genes. Equal scores are ordered by the reference-cluster input order;
-a zero gap is evidence of a tie, not a decisive match.
+To restore the count matrix:
 
-The **11 broad identities** are provisional manual interpretations, including
-conservative Mature-like/Meristem-like labels. Manual confidence categories
-are qualitative judgments, not calibrated probabilities or algorithmic scores.
-C0/C12 share Mature-like, C3/C5 share Meristem-like, and C4/C7 share Meristem;
-the original 14 cluster assignments remain unchanged. The fixed manual mapping
-is guarded against unexpected cluster IDs and should be reviewed if analysis
-parameters or package versions change.
-
-### Run and outputs
-
-From the project root, with the matrix restored as described in
-[docs/data_sources.md](docs/data_sources.md):
-
-```r
-source("scripts/01_qc_clustering_annotation.R")
+```bash
+curl -L \
+  https://ftp.ncbi.nlm.nih.gov/geo/series/GSE123nnn/GSE123818/suppl/GSE123818_Root_single_cell_wt_datamatrix.csv.gz \
+  -o data/GSE123818_Root_single_cell_wt_datamatrix.csv.gz
 ```
 
-Or run `Rscript scripts/01_qc_clustering_annotation.R` from a terminal.
-Required packages: Seurat, Matrix, dplyr, tidyr, ggplot2, readxl,
-org.At.tair.db, AnnotationDbi, and Seurat's plotting/UMAP dependencies.
-[Package versions](results/reproducibility/package_versions.csv) and
-[sessionInfo](results/reproducibility/sessionInfo.txt) record the verified environment.
-The earlier `01_qc_preprocessing.R` is only an import prototype; use the complete
-workflow above for analysis.
+To regenerate the replicate map with script 00, download the Shahan et al.
+Data S3 archive from the publisher, extract `SuppData3_complete.xltx`, and save
+it as:
 
-- [Figures](results/figures): ten final figures, each in PNG and PDF, covering
-  QC violin/scatter plots, PCA elbow, cluster UMAP, the complete similarity
-  heatmap, annotated UMAP, interaction-gene heatmap, and highlight scatter.
-  Every final plot is assigned and explicitly printed in Source mode, with a
-  shared classic 12-point white theme and bold titles. UMAP labels use small
-  repelled text without boxes.
-- [Summary tables](results/tables): QC counts, cluster sizes, top markers,
-  classic-marker overlaps, all 210 similarities, best/second evidence,
-  manual annotation, final evidence, cluster-to-identity counts, population
-  expression summaries, preferred populations, preference strength, and
-  exploratory strong candidates/counts.
-- Large expression matrices, serialized objects, extracted reference workbook,
-  and RStudio session files remain ignored; final figures and small tables are tracked.
+```text
+data/reference/Shahan2022_DataS3_WT_atlas_metadata.xltx
+```
 
-Project 2 has now progressed from cluster annotation to **Project 1 →
-single-cell contextualization**. Run the complete workflow from the project
-root with:
+Publisher archive:
+<https://ars.els-cdn.com/content/image/1-s2.0-S1534580722000338-mmc3.zip>
+
+## Running the complete workflow
+
+Start R in the project root and run:
 
 ```r
+source("scripts/00_recover_replicate_metadata.R")
 source("scripts/01_qc_clustering_annotation.R")
 source("scripts/02_interaction_gene_cell_context.R")
+source("scripts/03_robustness_checks.R")
 ```
 
-The second script can also be run directly with
-`Rscript scripts/02_interaction_gene_cell_context.R`; it reconstructs the 01
-analysis when `seurat_qc` is not already available and therefore does not rely
-on an undocumented interactive session.
+The same scripts can be run separately with `Rscript`. Scripts 02 and 03
+reconstruct their required upstream objects when run from a clean R session;
+therefore, they do not depend on an undocumented interactive workspace.
 
-Of the 137 Project 1 interaction genes, 136 are present among atlas features
-and 135 have at least one non-zero count. `AT5G07985` is absent from the
-expression matrix, while `AT1G66950` is a matrix feature but is all-zero in
-these cells. The analysis calculates detection rate and mean log-normalized
-expression for every detected gene in each of the 11 broad populations,
-producing an explicitly checked 135 × 11 matrix (1,485 combinations).
+Core R packages include Seurat, Matrix, dplyr, tidyr, ggplot2, readxl,
+AnnotationDbi, and org.At.tair.db. Verified package versions and session
+information are stored under [`results/reproducibility`](results/reproducibility).
 
-The clustered heatmap displays a **per-gene z-score across populations**: zero
-is that gene's across-population mean and positive/negative values indicate
-relative enrichment/depletion for that gene. It does not compare absolute
-expression between different genes. Euclidean distance with ward.D2 linkage is
-used only to order heatmap genes; it does not define candidate status.
+The message
+`'select()' returned 1:many mapping between keys and columns` is expected when
+GO annotations are queried because one TAIR gene can map to multiple GO terms.
+It is not an error; downstream dimensions and counts are checked explicitly.
 
-For each gene, the preferred population is the population with the highest
-expression z-score. `delta_z` is the difference between its highest and
-second-highest population z-scores, and preferred-population detection rate is
-the fraction of that population's cells with a non-zero raw count. The final
-highlight scatter uses detection rate on the x-axis and `delta_z` on the
-y-axis; shape indicates Positive/Negative Project 1 interaction direction.
-Points meeting the exploratory cutoff (`delta_z >= 1` and detection rate
-`>= 0.10`) are colored by preferred population, while all other points are
-semi-transparent gray. This yields 56 exploratory strong candidates. The
-clustered heatmap and highlight scatter are figures 09 and 10; population,
-preference, candidate, and count tables are in `results/tables/`.
+## Main analysis
 
-### Next checkpoint
+### QC, clustering, and annotation
 
-- pathway-level cellular contextualization
-- replicate/batch sanity check
-- top-50/100/200 marker-overlap robustness
-- protoplasting sensitivity
-- add `scripts/00_prepare_inputs.R` and/or `scripts/00_verify_inputs.R`
-- final README polish
+QC removes 42 extreme high-count/high-feature cells, retaining 4,685 of 4,727
+cells. Filtering uses `nCount_RNA < 220000` and `nFeature_RNA < 11000`; no hard
+organelle-percentage cutoff is applied. The workflow uses LogNormalize with a
+scale factor of 10,000, 2,000 variable genes, PCs 1–25, clustering resolution
+0.5, and fixed random seeds. Exactly 15 clusters are not forced: the independent
+analysis produces 14 computational clusters.
+
+Positive cluster markers (`min.pct = 0.25`, `logfc.threshold = 0.25`) are ranked
+by log2 fold change. Each reconstructed cluster's top 100 markers is compared
+with the top 100 positive significant genes from each Denyer C0–C14 signature.
+The complete 14 × 15 overlap and Jaccard matrix is calculated before biological
+interpretation. The resulting 11 broad identities are provisional manual
+summaries; the original 14 reconstructed cluster assignments remain unchanged.
+
+### Interaction-gene cellular context
+
+Of the 137 Project 1 interaction genes, 136 are present in the atlas feature
+list and 135 are detected in at least one cell. `AT5G07985` is absent;
+`AT1G66950` is present but all-zero. Expression is summarized for every detected
+gene across 11 broad populations, yielding 135 × 11 = 1,485 checked
+gene-population combinations.
+
+Figure 09 displays a **per-gene z-score across populations**, separated into
+Positive and Negative interaction blocks. Blue means relatively higher
+expression for that gene and red means relatively lower expression. These are
+relative-expression values, not enrichment/depletion statistics, and absolute
+color values should not be compared between genes.
+
+For each gene, `delta_z` is the difference between its highest and second-highest
+population z-scores. The exploratory strong-candidate definition is
+`delta_z >= 1` plus detection in at least 10% of cells in the preferred
+population; 56 genes meet both criteria. In Figure 10, Negative interactions
+are circles and Positive interactions are triangles.
+
+Figure 11 summarizes the preferred-population distribution of genes in seven
+previously selected positive-interaction GO terms. It is a descriptive pathway
+cellular-context view, not a new pathway-enrichment test.
+
+## Robustness checks
+
+### Replicate identity and mixing
+
+The replicate crosswalk contains 4,727 unique full barcodes:
+
+- 4,458 assignments (94.31%) are directly cross-validated against Shahan Data S3.
+- 269 assignments (5.69%) are suffix-inferred after the crosswalk is validated
+  with zero discordant direct matches.
+- There are 0 ambiguous sample-aware mappings and 0 duplicated full barcodes.
+- All 4,685 QC-passed cells receive a replicate label, with both replicates
+  represented in all 14 clusters and all 11 broad populations.
+
+The supported interpretation is **no obvious replicate-driven segregation and
+broad mixing**. This visual/compositional sanity check does not establish the
+complete absence of batch effects and is not replicate-level differential
+testing.
+
+### Marker-cutoff sensitivity
+
+The existing annotation evidence is compared fairly at three equal-size
+cutoffs: reconstructed top 50 versus Denyer top 50, top 100 versus top 100, and
+top 200 versus top 200. Jaccard is calculated as
+`overlap / (2 × cutoff - overlap)`. All 14 reconstructed clusters retain the
+same best Denyer match at all three cutoffs. This supports the stability of the
+existing matching and does not redefine annotation.
+
+### Protoplasting sensitivity
+
+The protoplasting-induced reference flags:
+
+- 40/135 detected interaction genes (29.6%).
+- 20/56 exploratory strong candidates (35.7%).
+- 13/80 Negative interaction genes (16.2%).
+- 27/55 Positive interaction genes (49.1%).
+
+Protoplasting is therefore an important confounder, particularly for positive
+interaction and stress-related genes. The `cold acclimation` term is fully
+flagged (3/3). After flagged genes are excluded, the other surviving GO terms
+often contain only two genes. Mature/Stele context is not completely removed,
+but this small-n, overlapping-gene result is sensitivity evidence rather than
+strong independent confirmation.
+
+## Outputs
+
+- [`results/figures`](results/figures): QC, clustering, annotation,
+  interaction-gene, pathway-context, and replicate UMAP figures (Figures
+  01–12; PNG/PDF where applicable).
+- [`results/tables`](results/tables): annotation evidence, population summaries,
+  candidate tables, pathway contexts, replicate composition, marker-cutoff
+  sensitivity, and protoplasting overlap tables.
+- [`results/reproducibility`](results/reproducibility): validation summaries,
+  package versions, and session information.
+
+The principal robustness audit is
+[`results/reproducibility/robustness_validation.txt`](results/reproducibility/robustness_validation.txt).
+It records the expected counts and the interpretation boundaries for direct
+cross-validation, suffix inference, replicate mixing, marker stability, and
+protoplasting sensitivity.
 
 ## Interpretation boundary
 
-This is an untreated, normal wild-type atlas. It can show which root cell
-populations normally express the bulk interaction candidates and provide
-cellular context, but it cannot demonstrate that a BRL3 × drought effect
-occurs within the preferred cell type. That would require genotype- and
+This is an untreated, normal wild-type atlas. It identifies cell populations
+that normally express the bulk interaction candidates and adds cellular context
+to the Project 1 result. It cannot demonstrate that the BRL3 × drought effect
+occurs within a preferred population; that would require genotype- and
 drought-resolved single-cell data.
 
 ## Citation
@@ -148,4 +196,4 @@ drought-resolved single-cell data.
 Denyer T, Ma X, Klesen S, Scacchi E, Nieselt K, Timmermans MCP. 2019.
 *Spatiotemporal Developmental Trajectories in the Arabidopsis Root Revealed
 Using High-Throughput Single-Cell RNA Sequencing.* Developmental Cell 48:
-840–852.e5. https://doi.org/10.1016/j.devcel.2019.02.022
+840–852.e5. <https://doi.org/10.1016/j.devcel.2019.02.022>

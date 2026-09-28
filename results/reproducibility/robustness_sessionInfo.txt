@@ -50,14 +50,15 @@ loaded via a namespace (and not attached):
  [70] pillar_1.11.1          stringr_1.6.0          spam_2.11-4
  [73] RcppHNSW_0.7.0         later_1.4.8            splines_4.6.1
  [76] lattice_0.23-1         survival_3.8-11        bit_4.6.0
- [79] deldir_2.0-4           tidyselect_1.2.1       Biostrings_2.80.2
- [82] miniUI_0.1.2           pbapply_1.7-5          gridExtra_2.3.1
- [85] Seqinfo_1.2.0          scattermore_1.2        matrixStats_1.5.0
- [88] stringi_1.8.9          codetools_0.2-20       tibble_3.3.1
- [91] cli_3.6.6              uwot_0.2.5             xtable_1.8-8
- [94] reticulate_1.47.0      Rcpp_1.1.2             globals_0.19.1
- [97] spatstat.random_3.5-1  png_0.1-9              spatstat.univar_3.2-0
-[100] parallel_4.6.1         blob_1.3.0             dotCall64_1.2
-[103] listenv_1.0.0          viridisLite_0.4.3      scales_1.4.0
-[106] ggridges_0.5.7         purrr_1.2.2            crayon_1.5.3
-[109] rlang_1.3.0            cowplot_1.2.0          KEGGREST_1.52.2
+ [79] deldir_2.0-4           tidyselect_1.2.1       GO.db_3.23.1
+ [82] Biostrings_2.80.2      miniUI_0.1.2           pbapply_1.7-5
+ [85] gridExtra_2.3.1        Seqinfo_1.2.0          scattermore_1.2
+ [88] matrixStats_1.5.0      stringi_1.8.9          codetools_0.2-20
+ [91] tibble_3.3.1           cli_3.6.6              uwot_0.2.5
+ [94] xtable_1.8-8           reticulate_1.47.0      Rcpp_1.1.2
+ [97] globals_0.19.1         spatstat.random_3.5-1  png_0.1-9
+[100] spatstat.univar_3.2-0  parallel_4.6.1         blob_1.3.0
+[103] dotCall64_1.2          listenv_1.0.0          viridisLite_0.4.3
+[106] scales_1.4.0           ggridges_0.5.7         purrr_1.2.2
+[109] crayon_1.5.3           rlang_1.3.0            cowplot_1.2.0
+[112] KEGGREST_1.52.2

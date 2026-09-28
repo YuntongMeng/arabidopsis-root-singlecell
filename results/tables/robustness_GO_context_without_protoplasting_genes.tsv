@@ -1,0 +1,13 @@
+GO_term	preferred_population	n_genes	total_remaining	gene_fraction
+response to cold	Cortex	1	2	0.5
+response to cold	Mature	1	2	0.5
+response to acid chemical	Mature	1	2	0.5
+response to acid chemical	Stele	1	2	0.5
+response to water	Mature	1	2	0.5
+response to water	Stele	1	2	0.5
+response to water deprivation	Mature	1	2	0.5
+response to water deprivation	Stele	1	2	0.5
+jasmonic acid metabolic process	Mature	1	2	0.5
+jasmonic acid metabolic process	Stele	1	2	0.5
+long-chain fatty acid metabolic process	Mature	1	2	0.5
+long-chain fatty acid metabolic process	Stele	1	2	0.5

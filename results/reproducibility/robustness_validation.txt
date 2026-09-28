@@ -1,0 +1,38 @@
+Arabidopsis root single-cell robustness workflow validation
+
+Replicate identity recovery
+- Mapping rows: 4727 (expected 4727)
+- Direct Data S3 cross-validation: 4458/4727 (94.31%)
+- Suffix-inferred cells absent from final WT atlas metadata: 269/4727 (5.69%)
+- Discordant direct matches: 0
+- Ambiguous sample-aware mappings: 0
+- Evidence boundary: 4458 assignments are direct sample-aware cross-validation; 269 are suffix inference after the crosswalk was validated with zero discordance. The 4727 assignments must not all be described as direct matches.
+
+QC-passed object and replicate/batch sanity check
+- QC-passed cells with replicate labels: 4685/4685
+- Replicate totals after QC: rep1=2341; rep2=2344
+- Computational clusters represented by both replicates: 14/14
+- Broad populations represented by both replicates: 11/11
+- Interpretation: no obvious replicate-driven segregation; broad mixing is observed.
+- Boundary: this visual/compositional sanity check does not demonstrate complete absence of batch effects and is not formal replicate-level differential testing.
+
+Marker-cutoff sensitivity
+- Comparison: reconstructed top50 vs Denyer top50; top100 vs top100; top200 vs top200.
+- Jaccard formula at cutoff k: overlap / (2*k - overlap).
+- Stable best Denyer match across all three cutoffs: 14/14
+- Boundary: this is a sensitivity check on the existing annotation evidence; it does not redefine clustering or annotation.
+
+Protoplasting sensitivity
+- Detected interaction genes flagged: 40/135 (29.6%)
+- Strong candidates flagged: 20/56 (35.7%)
+- Negative interaction genes flagged: 13/80 (16.2%)
+- Positive interaction genes flagged: 27/55 (49.1%)
+- cold acclimation: 3/3 genes flagged; this term has no genes remaining after exclusion.
+- Other GO terms: response to cold 5/7; response to acid chemical 4/6; response to water 4/6; response to water deprivation 4/6; jasmonic acid metabolic process 2/4; long-chain fatty acid metabolic process 2/4 flagged.
+- Interpretation: protoplasting is an important confounder, especially for positive interaction/stress-related genes. After exclusion, five terms retain a Mature/Stele pattern and response to cold retains Mature/Cortex, so the Mature/Stele cellular context is not completely explained by flagged genes.
+- Small-n boundary: each surviving GO term contains only 2 genes, and the GO terms share genes; this is supportive sensitivity evidence, not independent or strong statistical confirmation.
+
+Execution
+- Script 01 sourced in this session: FALSE
+- Script 02 sourced in this session: FALSE
+- Main-analysis QC, clustering, annotation, and candidate thresholds were reused unchanged.

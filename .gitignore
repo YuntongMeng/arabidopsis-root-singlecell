@@ -1,6 +1,9 @@
 # Public matrix: reproducible from the exact GEO URL in docs/data_sources.md
 /data/GSE123818_Root_single_cell_wt_datamatrix.csv.gz
 
+# Large public metadata workbook used only to regenerate the tracked replicate map
+/data/reference/Shahan2022_DataS3_WT_atlas_metadata.xltx
+
 # R / RStudio session state
 .Rhistory
 .RData

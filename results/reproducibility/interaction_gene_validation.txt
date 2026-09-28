@@ -8,4 +8,8 @@ Population-summary rows: 1485
 Expression matrix: 135 x 11
 Strong candidates: 56
 Strong cutoff: delta_z >= 1 and preferred-population detection_rate >= 0.10
-Gene order only: Euclidean distance + ward.D2 hierarchical clustering
+Heatmap gene order only: Euclidean distance + ward.D2 clustering within interaction direction
+Pathway GO-term x gene rows: 36
+Pathway unique genes: 13
+Pathway population-summary rows: 20
+Pathway context is descriptive and is not a pathway-enrichment statistic

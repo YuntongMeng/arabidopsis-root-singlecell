@@ -1,4 +1,4 @@
-###############################################################################
+# ============================================================
 # Arabidopsis root single-cell RNA-seq
 # QC, dimensionality reduction, clustering, and cell-population annotation
 #
@@ -19,12 +19,12 @@
 # Project question:
 #   This atlas will later be used to contextualize BRL3 × drought interaction genes
 #   identified in the independent bulk RNA-seq project.
-###############################################################################
+# ============================================================
 
 
-# =============================================================================
-# 0. Load packages
-# =============================================================================
+# ------------------------------------------------------------
+# 1. Load packages
+# ------------------------------------------------------------
 
 library(Seurat)
 library(Matrix)
@@ -57,9 +57,9 @@ save_table <- function(x, name) {
   write.csv(x, file.path("results/tables", paste0(name, ".csv")), row.names = FALSE)
 }
 
-# =============================================================================
-# 1. Load the published single-cell expression matrix
-# =============================================================================
+# ------------------------------------------------------------
+# 2. Load the published single-cell expression matrix
+# ------------------------------------------------------------
 
 # Rows = genes
 # Columns = individual cell barcodes
@@ -78,9 +78,9 @@ dim(counts)
 # 27629 genes × 4727 cells
 
 
-# =============================================================================
-# 2. Create Seurat object
-# =============================================================================
+# ------------------------------------------------------------
+# 3. Create Seurat object
+# ------------------------------------------------------------
 
 seurat_obj <- CreateSeuratObject(
   counts = counts,
@@ -102,9 +102,9 @@ summary(seurat_obj$nCount_RNA)
 summary(seurat_obj$nFeature_RNA)
 
 
-# =============================================================================
-# 3. Initial QC visualization
-# =============================================================================
+# ------------------------------------------------------------
+# 4. Initial QC visualization
+# ------------------------------------------------------------
 
 qc_violin <- VlnPlot(
   seurat_obj,
@@ -113,7 +113,7 @@ qc_violin <- VlnPlot(
   pt.size = 0
 ) &
   analysis_theme
-print(qc_violin)
+if (interactive()) print(qc_violin)
 save_figure(qc_violin, "01_qc_violin")
 
 # Relationship between sequencing depth and detected gene number.
@@ -128,13 +128,13 @@ qc_depth_features <- FeatureScatter(
 ) +
   analysis_theme +
   labs(title = "Sequencing depth and detected genes")
-print(qc_depth_features)
+if (interactive()) print(qc_depth_features)
 save_figure(qc_depth_features, "02_qc_depth_features")
 
 
-# =============================================================================
-# 4. Mitochondrial and chloroplast transcript percentages
-# =============================================================================
+# ------------------------------------------------------------
+# 5. Mitochondrial and chloroplast transcript percentages
+# ------------------------------------------------------------
 
 # TAIR locus prefixes:
 #
@@ -171,7 +171,7 @@ qc_mitochondrial <- FeatureScatter(
 ) +
   analysis_theme +
   labs(title = "Mitochondrial transcript percentage")
-print(qc_mitochondrial)
+if (interactive()) print(qc_mitochondrial)
 save_figure(qc_mitochondrial, "03_qc_mitochondrial")
 
 
@@ -182,7 +182,7 @@ qc_chloroplast <- FeatureScatter(
 ) +
   analysis_theme +
   labs(title = "Chloroplast transcript percentage")
-print(qc_chloroplast)
+if (interactive()) print(qc_chloroplast)
 save_figure(qc_chloroplast, "04_qc_chloroplast")
 
 
@@ -190,9 +190,9 @@ save_figure(qc_chloroplast, "04_qc_chloroplast")
 # Therefore, no hard mitochondrial or chloroplast cutoff was applied.
 
 
-# =============================================================================
-# 5. Examine high-count / high-feature tails
-# =============================================================================
+# ------------------------------------------------------------
+# 6. Examine high-count / high-feature tails
+# ------------------------------------------------------------
 
 quantile(
   seurat_obj$nCount_RNA,
@@ -223,9 +223,9 @@ sum(
 )
 
 
-# =============================================================================
-# 6. QC filtering
-# =============================================================================
+# ------------------------------------------------------------
+# 7. QC filtering
+# ------------------------------------------------------------
 
 seurat_qc <- subset(
   seurat_obj,
@@ -250,9 +250,9 @@ summary(seurat_qc$nCount_RNA)
 summary(seurat_qc$nFeature_RNA)
 
 
-# =============================================================================
-# 7. Normalize expression
-# =============================================================================
+# ------------------------------------------------------------
+# 8. Normalize expression
+# ------------------------------------------------------------
 
 seurat_qc <- NormalizeData(
   seurat_qc,
@@ -266,9 +266,9 @@ seurat_qc <- NormalizeData(
 # then log-transform the normalized expression values.
 
 
-# =============================================================================
-# 8. Identify highly variable genes
-# =============================================================================
+# ------------------------------------------------------------
+# 9. Identify highly variable genes
+# ------------------------------------------------------------
 
 seurat_qc <- FindVariableFeatures(
   seurat_qc,
@@ -285,9 +285,9 @@ head(
 # and are therefore informative for distinguishing different cell populations.
 
 
-# =============================================================================
-# 9. Scale variable genes
-# =============================================================================
+# ------------------------------------------------------------
+# 10. Scale variable genes
+# ------------------------------------------------------------
 
 seurat_qc <- ScaleData(
   seurat_qc,
@@ -295,9 +295,9 @@ seurat_qc <- ScaleData(
 )
 
 
-# =============================================================================
-# 10. Principal component analysis
-# =============================================================================
+# ------------------------------------------------------------
+# 11. Principal component analysis
+# ------------------------------------------------------------
 
 seurat_qc <- RunPCA(
   seurat_qc,
@@ -314,7 +314,7 @@ pca_elbow <- ElbowPlot(
   labs(
     title = "PCA elbow plot"
   )
-print(pca_elbow)
+if (interactive()) print(pca_elbow)
 save_figure(pca_elbow, "05_pca_elbow")
 
 
@@ -327,9 +327,9 @@ save_figure(pca_elbow, "05_pca_elbow")
 # not as a uniquely correct mathematical answer.
 
 
-# =============================================================================
-# 11. Construct cell-cell neighbor graph
-# =============================================================================
+# ------------------------------------------------------------
+# 12. Construct cell-cell neighbor graph
+# ------------------------------------------------------------
 
 seurat_qc <- FindNeighbors(
   seurat_qc,
@@ -341,9 +341,9 @@ seurat_qc <- FindNeighbors(
 # a cell-cell graph.
 
 
-# =============================================================================
-# 12. Unsupervised clustering
-# =============================================================================
+# ------------------------------------------------------------
+# 13. Unsupervised clustering
+# ------------------------------------------------------------
 
 seurat_qc <- FindClusters(
   seurat_qc,
@@ -362,9 +362,9 @@ length(levels(Idents(seurat_qc)))
 # A computational cluster is NOT automatically equivalent to a cell type.
 
 
-# =============================================================================
-# 13. UMAP visualization
-# =============================================================================
+# ------------------------------------------------------------
+# 14. UMAP visualization
+# ------------------------------------------------------------
 
 seurat_qc <- RunUMAP(
   seurat_qc,
@@ -400,16 +400,16 @@ umap_clusters <- LabelClusters(
   min.segment.length = 0
 )
 
-print(umap_clusters)
+if (interactive()) print(umap_clusters)
 save_figure(umap_clusters, "06_cluster_umap")
 
 # Final figure formatting can be adjusted later.
 # In particular, labels should remain readable without covering small clusters.
 
 
-# =============================================================================
-# 14. Identify marker genes for each reconstructed cluster
-# =============================================================================
+# ------------------------------------------------------------
+# 15. Identify marker genes for each reconstructed cluster
+# ------------------------------------------------------------
 
 markers <- FindAllMarkers(
   seurat_qc,
@@ -431,9 +431,9 @@ markers <- FindAllMarkers(
 #   Removes very small expression differences.
 
 
-# =============================================================================
-# 15. Inspect top marker genes
-# =============================================================================
+# ------------------------------------------------------------
+# 16. Inspect top marker genes
+# ------------------------------------------------------------
 
 top_markers <- markers %>%
   dplyr::group_by(cluster) %>%
@@ -491,9 +491,9 @@ marker_summary <- top_markers %>%
 marker_summary
 
 
-# =============================================================================
-# 16. Load Denyer et al. supplementary cluster information
-# =============================================================================
+# ------------------------------------------------------------
+# 17. Load Denyer et al. supplementary cluster information
+# ------------------------------------------------------------
 
 denyer_zip <-
   "docs/reference/Denyer2019_TableS2_cluster_DEGs_markers_and_identity.zip"
@@ -533,9 +533,9 @@ excel_sheets(denyer_xlsm)
 # The original source also contains subcluster analyses and specificity scores.
 
 
-# =============================================================================
-# 17. Published Denyer cluster identities
-# =============================================================================
+# ------------------------------------------------------------
+# 18. Published Denyer cluster identities
+# ------------------------------------------------------------
 
 cluster_overview <- read_excel(
   denyer_xlsm,
@@ -569,9 +569,9 @@ cluster_overview %>%
 # (e.g. "Meristerm", "QC/Colummela").
 
 
-# =============================================================================
-# 18. First annotation check using published cell-type marker lists
-# =============================================================================
+# ------------------------------------------------------------
+# 19. First annotation check using published cell-type marker lists
+# ------------------------------------------------------------
 
 denyer_markers <- read_excel(
   denyer_xlsm,
@@ -662,9 +662,9 @@ marker_overlap_norm %>%
 # Therefore, a more complete cluster-signature comparison was performed next.
 
 
-# =============================================================================
-# 19. Read complete Denyer C0–C14 cluster signatures
-# =============================================================================
+# ------------------------------------------------------------
+# 20. Read complete Denyer C0–C14 cluster signatures
+# ------------------------------------------------------------
 
 # For a fair comparison:
 #
@@ -716,9 +716,9 @@ denyer_top100 %>%
   dplyr::count(denyer_cluster)
 
 
-# =============================================================================
-# 20. Compare our 14 clusters with Denyer's 15 clusters
-# =============================================================================
+# ------------------------------------------------------------
+# 21. Compare our 14 clusters with Denyer's 15 clusters
+# ------------------------------------------------------------
 
 stopifnot(all(table(our_top100$cluster) == 100L),
           all(table(denyer_top100$denyer_cluster) == 100L),
@@ -790,9 +790,9 @@ cluster_scores <- cluster_scores %>%
   )
 
 
-# =============================================================================
-# 21. Inspect top Denyer matches for each reconstructed cluster
-# =============================================================================
+# ------------------------------------------------------------
+# 22. Inspect top Denyer matches for each reconstructed cluster
+# ------------------------------------------------------------
 
 cluster_scores %>%
   dplyr::group_by(cluster) %>%
@@ -833,9 +833,9 @@ cluster_scores %>%
 #   33 shared genes
 
 
-# =============================================================================
-# 22. Visualize complete 14 × 15 similarity matrix
-# =============================================================================
+# ------------------------------------------------------------
+# 23. Visualize complete 14 × 15 similarity matrix
+# ------------------------------------------------------------
 
 heatmap_df <- cluster_scores %>%
   dplyr::mutate(
@@ -888,7 +888,7 @@ similarity_heatmap <- ggplot(
     )
   )
 
-print(similarity_heatmap)
+if (interactive()) print(similarity_heatmap)
 save_figure(similarity_heatmap, "07_similarity_heatmap", width = 11, height = 8)
 
 # Interpretation:
@@ -904,9 +904,9 @@ save_figure(similarity_heatmap, "07_similarity_heatmap", width = 11, height = 8)
 # to reproduce exactly 15 clusters.
 
 
-# =============================================================================
-# 23. Quantify best vs second-best cluster matches
-# =============================================================================
+# ------------------------------------------------------------
+# 24. Quantify best vs second-best cluster matches
+# ------------------------------------------------------------
 
 cluster_confidence <- cluster_scores %>%
   dplyr::group_by(cluster) %>%
@@ -970,9 +970,9 @@ cluster_confidence_wide %>%
 #   ambiguity in the biological identity "Trichoblast".
 
 
-# =============================================================================
-# 24. Manual biological annotation
-# =============================================================================
+# ------------------------------------------------------------
+# 25. Manual biological annotation
+# ------------------------------------------------------------
 
 # IMPORTANT:
 #
@@ -1036,9 +1036,9 @@ annotation_table <- dplyr::tibble(
 annotation_table
 
 
-# =============================================================================
-# 25. Build a final annotation evidence table
-# =============================================================================
+# ------------------------------------------------------------
+# 26. Build a final annotation evidence table
+# ------------------------------------------------------------
 
 final_annotation_table <- cluster_confidence_wide %>%
   dplyr::left_join(
@@ -1085,9 +1085,9 @@ final_annotation_table
 #   identity and confidence
 
 
-# =============================================================================
-# 26. Add broad identity to Seurat metadata
-# =============================================================================
+# ------------------------------------------------------------
+# 27. Add broad identity to Seurat metadata
+# ------------------------------------------------------------
 
 cluster_to_identity <- setNames(
   annotation_table$identity,
@@ -1122,9 +1122,9 @@ table(
 )
 
 
-# =============================================================================
-# 27. Final annotated UMAP
-# =============================================================================
+# ------------------------------------------------------------
+# 28. Final annotated UMAP
+# ------------------------------------------------------------
 
 annotated_umap <- DimPlot(
   seurat_qc,
@@ -1147,7 +1147,7 @@ annotated_umap <- DimPlot(
     legend.title = element_blank()
   )
 
-print(annotated_umap)
+if (interactive()) print(annotated_umap)
 save_figure(annotated_umap, "08_annotated_umap", width = 11, height = 7)
 
 # NOTE:
@@ -1166,8 +1166,9 @@ save_figure(annotated_umap, "08_annotated_umap", width = 11, height = 7)
 # Only the biological annotation layer was grouped.
 
 
-###############################################################################
-# END OF FIRST-PASS CLUSTERING AND ANNOTATION
+# ============================================================
+# Summary of the first-pass clustering and annotation
+# ============================================================
 #
 # Current result:
 #
@@ -1182,16 +1183,16 @@ save_figure(annotated_umap, "08_annotated_umap", width = 11, height = 7)
 # interaction genes from the independent bulk RNA-seq project are detected
 # across normal Arabidopsis root cell populations.
 #
-# TODO / later robustness analyses:
-#
-#   - Compare clustering with 20 / 25 / 30 PCs
-#   - Explore alternative clustering resolutions
-#   - Quantitatively investigate elbow-point selection
-#   - Add protoplasting-induced gene sensitivity analysis
-###############################################################################
+# Replicate, marker-cutoff, and protoplasting sensitivity analyses are kept in
+# script 03 so that this main workflow retains its original analysis parameters.
 
-# 28. Persist small evidence tables and reproducibility records.
-# Fail rather than apply the fixed manual mapping to an unexpected clustering.
+
+# ------------------------------------------------------------
+# 29. Save evidence tables and reproducibility records
+# ------------------------------------------------------------
+
+# Persist the compact results needed for review and downstream work. Fail
+# rather than apply the fixed manual mapping to an unexpected clustering.
 stopifnot(ncol(seurat_qc) == 4685L,
           identical(levels(Idents(seurat_qc)), as.character(0:13)),
           nrow(cluster_scores) == 210L,

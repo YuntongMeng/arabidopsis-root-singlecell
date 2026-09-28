@@ -1,0 +1,5 @@
+analysis_set	interaction_direction	n_genes	n_protoplasting_induced	fraction_protoplasting_induced
+detected_interaction_genes	All	135	40	0.296296296296296
+strong_candidates	All	56	20	0.357142857142857
+detected_interaction_genes	Negative	80	13	0.1625
+detected_interaction_genes	Positive	55	27	0.490909090909091
