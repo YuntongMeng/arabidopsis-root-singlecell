@@ -7,6 +7,24 @@ GSE123818), without drought or BRL3 perturbation, to provide cellular context
 for the bulk RNA-seq signal. The atlas cells were isolated by protoplasting,
 which is evaluated explicitly as a sensitivity analysis below.
 
+## Key biological findings
+
+- Of the 137 Project 1 interaction genes, **135 were detected** in the atlas and
+  could be compared across 11 broad root cell populations.
+- Preferred expression was distributed across the root, but occurred most often
+  in **Mature (34 genes), Stele (27), and Trichoblast (25)** populations.
+- The 56 exploratory strong candidates were concentrated in **Mature (22)** and
+  **Stele (13)** populations. Positive-interaction strong candidates showed a
+  particularly marked Mature preference (20 of 26), whereas negative candidates
+  were distributed more broadly.
+- Water-response genes provided a concrete link between the bulk and single-cell
+  projects: *AtGolS2* was Mature-preferred, *ANAC019*, *ANAC072*, and *KIN1*
+  were Stele-preferred, and *LTI30* was Mature-like-preferred in this atlas.
+
+These are normal-expression contexts, not measurements of drought responses in
+individual cell types. Population size, relative-expression scoring, and
+protoplasting sensitivity all constrain the interpretation.
+
 ## Analysis overview
 
 The final workflow contains four scripts, which are intended to be run in
@@ -130,6 +148,30 @@ The source table is also available in the
 [Project 1 repository](https://github.com/YuntongMeng/arabidopsis-drought-rnaseq/blob/main/results/FULL_interaction_GO_enrichment_positive.tsv).
 Figure 11 is a descriptive pathway cellular-context view, not a new
 pathway-enrichment test.
+
+## Biological interpretation
+
+The atlas does not point to a single exclusive cellular origin for the Project 1
+interaction signal. Instead, it prioritizes a combination of mature-root and
+vascular contexts while retaining contributions from epidermal and ground-tissue
+populations. The concentration of positive-interaction strong candidates in the
+Mature population suggests that differentiated root cells are a useful setting
+for follow-up, while the Stele preferences of *ANAC019*, *ANAC072*, and *KIN1*
+connect several water-response candidates to vascular tissue, where BRL3 is
+biologically relevant.
+
+The seven positive-interaction GO terms show a similar pattern. Water response,
+water deprivation, and response to acid chemical each place three of six genes
+in Stele, two in Mature, and one in Mature-like. Jasmonic-acid and long-chain
+fatty-acid metabolism are split evenly between Mature and Stele among the four
+genes in each term. These small, overlapping gene sets should be treated as
+hypothesis-generating cellular context rather than independent pathway evidence.
+
+Protoplasting provides the main biological caution: 27 of 55 detected positive
+interaction genes and 20 of 56 strong candidates overlap the induced reference
+set. The Mature/Stele pattern is not completely removed by this sensitivity
+analysis, but the remaining pathway sets are too small to support a strong
+mechanistic claim.
 
 ## Robustness checks
 
