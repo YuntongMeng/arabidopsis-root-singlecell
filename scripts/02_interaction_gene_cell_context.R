@@ -3,9 +3,9 @@
 # Cellular context of Project 1 genotype × drought interaction genes
 #
 # Main purpose:
-#   Use the untreated WT root atlas from Project 2 to describe where the
-#   Project 1 interaction genes are normally detected across broad root
-#   cell populations.
+#   Use the normal WT root atlas without drought or BRL3 perturbation to
+#   describe where the Project 1 interaction genes are normally detected
+#   across broad root cell populations.
 #
 # Important interpretation:
 #   The atlas provides cellular context only. It cannot demonstrate that a
@@ -432,12 +432,61 @@ save_figure(highlight_scatter, "10_interaction_gene_highlight_scatter",
 # 8. Summarize enriched pathways across preferred populations
 # ------------------------------------------------------------
 
-# Reconstruct the seven previously selected positive-interaction GO terms from
-# inherited Biological Process annotations. Each tile shows the fraction of a
-# pathway's genes whose preferred atlas population is the indicated column.
-# This is a descriptive cellular-context summary, not an enrichment test.
+# Read the seven significant positive-interaction GO terms directly from the
+# tracked Project 1 enrichment output. Gene membership is then reconstructed
+# from inherited Biological Process annotations using the source GO IDs. Each
+# tile shows the fraction of a pathway's genes whose preferred atlas population
+# is the indicated column. This is a descriptive cellular-context summary, not
+# a new enrichment test.
 
-pathway_go_terms <- c(
+project1_go_path <- "data/FULL_interaction_GO_enrichment_positive.tsv"
+if (!file.exists(project1_go_path)) {
+  stop("Missing Project 1 positive-interaction GO enrichment input: ",
+       project1_go_path)
+}
+project1_positive_go <- utils::read.delim(
+  project1_go_path,
+  check.names = FALSE,
+  stringsAsFactors = FALSE
+)
+required_go_columns <- c(
+  "ID", "Description", "p.adjust", "qvalue", "geneID", "Count"
+)
+if (!all(required_go_columns %in% names(project1_positive_go))) {
+  stop(
+    "Project 1 GO input is missing column(s): ",
+    paste(setdiff(required_go_columns, names(project1_positive_go)), collapse = ", ")
+  )
+}
+
+# Preserve the previously approved Figure 11 presentation order. This vector
+# controls display only; the seven selected terms and their expected counts
+# come from the tracked Project 1 enrichment table.
+pathway_display_go_ids <- c(
+  "GO:0009631", "GO:0009409", "GO:0001101", "GO:0009415",
+  "GO:0009414", "GO:0009694", "GO:0001676"
+)
+stopifnot(
+  nrow(project1_positive_go) == 7L,
+  !anyNA(project1_positive_go$ID),
+  !anyNA(project1_positive_go$Description),
+  !anyDuplicated(project1_positive_go$ID),
+  !anyDuplicated(project1_positive_go$Description),
+  all(project1_positive_go$p.adjust < 0.05),
+  all(project1_positive_go$qvalue < 0.05),
+  all(project1_positive_go$Count > 0L),
+  setequal(project1_positive_go$ID, pathway_display_go_ids)
+)
+pathway_source <- project1_positive_go[
+  match(pathway_display_go_ids, project1_positive_go$ID),
+  ,
+  drop = FALSE
+]
+pathway_go_terms <- pathway_source$Description
+expected_pathway_gene_counts <- as.integer(pathway_source$Count)
+names(expected_pathway_gene_counts) <- pathway_go_terms
+
+expected_pathway_go_terms <- c(
   "cold acclimation",
   "response to cold",
   "response to acid chemical",
@@ -446,8 +495,13 @@ pathway_go_terms <- c(
   "jasmonic acid metabolic process",
   "long-chain fatty acid metabolic process"
 )
-expected_pathway_gene_counts <- c(3L, 7L, 6L, 6L, 6L, 4L, 4L)
-names(expected_pathway_gene_counts) <- pathway_go_terms
+stopifnot(
+  identical(pathway_go_terms, expected_pathway_go_terms),
+  identical(
+    unname(AnnotationDbi::Term(pathway_source$ID)),
+    pathway_go_terms
+  )
+)
 
 positive_preference_context <- preference_strength_checked %>%
   dplyr::filter(interaction_direction == "Positive")
@@ -458,16 +512,21 @@ positive_go_annotations <- AnnotationDbi::select(
   columns = c("GOALL", "ONTOLOGYALL")
 ) %>%
   dplyr::filter(ONTOLOGYALL == "BP", !is.na(GOALL)) %>%
-  dplyr::mutate(GO_term = AnnotationDbi::Term(GOALL)) %>%
-  dplyr::filter(GO_term %in% pathway_go_terms) %>%
-  dplyr::transmute(TAIR, GO_ID = GOALL, GO_term) %>%
-  dplyr::distinct(TAIR, GO_term, .keep_all = TRUE)
+  dplyr::filter(GOALL %in% pathway_source$ID) %>%
+  dplyr::transmute(TAIR, GO_ID = GOALL) %>%
+  dplyr::distinct(TAIR, GO_ID)
 
 go_gene_context <- positive_preference_context %>%
   dplyr::inner_join(
     positive_go_annotations,
     by = "TAIR",
     relationship = "one-to-many"
+  ) %>%
+  dplyr::inner_join(
+    pathway_source %>%
+      dplyr::transmute(GO_ID = ID, GO_term = Description),
+    by = "GO_ID",
+    relationship = "many-to-one"
   ) %>%
   dplyr::mutate(GO_term = factor(GO_term, levels = pathway_go_terms)) %>%
   dplyr::arrange(GO_term, TAIR) %>%
@@ -556,8 +615,9 @@ save_table(pathway_context, "pathway_cell_context")
 # Record the expected input, detection, matrix, and candidate counts so that
 # future reruns fail visibly if the upstream object or input files change.
 
-# Untreated WT data provide cellular context only; they cannot prove that a
-# BRL3 x drought effect occurs in the preferred population.
+# WT data without drought or BRL3 perturbation provide cellular context only;
+# they cannot prove that a BRL3 x drought effect occurs in the preferred
+# population. Protoplasting sensitivity is assessed separately in script 03.
 validation_lines <- c(
   "Project 2 interaction-gene cellular contextualization validation",
   paste("Interaction genes:", nrow(interaction_genes)),
@@ -570,6 +630,8 @@ validation_lines <- c(
   paste("Strong candidates:", nrow(strong_candidates)),
   "Strong cutoff: delta_z >= 1 and preferred-population detection_rate >= 0.10",
   "Heatmap gene order only: Euclidean distance + ward.D2 clustering within interaction direction",
+  paste("Project 1 significant positive-interaction GO terms:", nrow(project1_positive_go)),
+  paste("Project 1 GO source:", project1_go_path),
   paste("Pathway GO-term x gene rows:", nrow(go_gene_context)),
   paste("Pathway unique genes:", dplyr::n_distinct(go_gene_context$TAIR)),
   paste("Pathway population-summary rows:", nrow(pathway_context)),

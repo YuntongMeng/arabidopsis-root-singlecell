@@ -50,6 +50,7 @@ required_project_files <- c(
   "scripts/01_qc_clustering_annotation.R",
   "scripts/02_interaction_gene_cell_context.R",
   "data/GSE123818_Root_single_cell_wt_datamatrix.csv.gz",
+  "data/FULL_interaction_GO_enrichment_positive.tsv",
   "data/reference/Denyer2019_WT_barcode_to_replicate.tsv",
   "data/reference/Denyer2019_TableS1_protoplasting_induced_FCgt2_q_lt_0.05.tsv",
   "docs/reference/Denyer2019_TableS2_cluster_DEGs_markers_and_identity.zip"

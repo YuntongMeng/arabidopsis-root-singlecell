@@ -33,6 +33,6 @@ Protoplasting sensitivity
 - Small-n boundary: each surviving GO term contains only 2 genes, and the GO terms share genes; this is supportive sensitivity evidence, not independent or strong statistical confirmation.
 
 Execution
-- Script 01 sourced in this session: FALSE
-- Script 02 sourced in this session: FALSE
+- Script 01 sourced in this session: TRUE
+- Script 02 sourced in this session: TRUE
 - Main-analysis QC, clustering, annotation, and candidate thresholds were reused unchanged.

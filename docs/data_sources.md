@@ -1,7 +1,8 @@
 # Data sources and verified preparation state
 
-Input provenance verified on 2026-09-15. First-pass Seurat clustering and
-provisional annotation completed on 2026-09-16; see README and results/.
+Core input provenance was first verified on 2026-09-15. Replicate recovery,
+Project 1 GO provenance, and the complete 00–03 workflow were verified on
+2026-09-28; see README and results/.
 
 ## Primary single-cell matrix
 
@@ -46,6 +47,58 @@ Independent verification against the GSE123818 matrix found:
 - `AT5G07985`: no matching matrix feature
 - `AT1G66950`: matching feature, but zero in all 4,727 cells
 
+## Project 1 positive-interaction GO enrichment
+
+**Tracked file:** `data/FULL_interaction_GO_enrichment_positive.tsv`
+
+- Origin: Project 1 bulk root RNA-seq GO enrichment for genes with a positive
+  BRL3 genotype × drought interaction.
+- Upstream source: [Project 1 repository output](https://github.com/YuntongMeng/arabidopsis-drought-rnaseq/blob/main/results/FULL_interaction_GO_enrichment_positive.tsv)
+- Rows: 7 significant Biological Process terms.
+- All seven terms have adjusted p-value and q-value below 0.05.
+- SHA-256: `a8b3c4898326ce29151904ea09af5de921fabfcb59edfa7ebd601cad3d3f0db2`
+
+Script 02 reads the GO IDs, descriptions, and expected gene counts directly
+from this table. It uses `org.At.tair.db` to reconstruct inherited GO membership
+for the detected positive-interaction genes. The resulting Figure 11 is a
+descriptive cellular-context summary of the seven Project 1 enrichment results;
+it is not a second enrichment test.
+
+## Replicate identity recovery
+
+**Local regeneration input (not tracked by Git):**
+`data/reference/Shahan2022_DataS3_WT_atlas_metadata.xltx`
+
+- Source: Shahan et al. (2022) Data S3, publisher archive
+  <https://ars.els-cdn.com/content/image/1-s2.0-S1534580722000338-mmc3.zip>.
+- Publisher filename inside the archive: `SuppData3_complete.xltx`.
+- SHA-256 after extraction: `fc2ce681fa252d0ce08907acc3b55656b03c15573b7dd6253ffefab1f58142a1`.
+- Relevant fields: `cell_barcode_id` and `orig.ident` from the
+  `atlas meta data` sheet.
+- GSE152766 sample crosswalk: `dc1 = GSM3511858 = rep1` and
+  `dc2 = GSM3511859 = rep2`.
+
+Script 00 normalizes the Shahan barcode suffixes `_15` and `_16` to the Denyer
+matrix suffixes `-1` and `-2` using sample-aware keys. Recovery was validated as
+follows:
+
+- 4,458/4,727 cells (94.31%) have direct, sample-aware Data S3 matches:
+  2,224 `dc1` and 2,234 `dc2`.
+- 269/4,727 cells (5.69%) are absent from the final Shahan WT atlas metadata
+  and are suffix-inferred only after the direct crosswalk showed zero
+  discordance.
+- Final assignments are 2,367 `rep1` and 2,360 `rep2` cells.
+- There are 0 ambiguous sample-aware mappings, 0 discordant direct matches,
+  and 0 duplicated full barcodes.
+- Seven 16-nt base barcode sequences occur in both libraries (14 cells total),
+  so the complete barcode including `-1`/`-2` is required for exact joins.
+
+The tracked derived output is
+`data/reference/Denyer2019_WT_barcode_to_replicate.tsv`; direct matches and
+suffix-inferred assignments retain separate evidence statuses. Full details are
+recorded in
+`data/reference/Denyer2019_WT_replicate_recovery_report.md`.
+
 ## Denyer et al. cell-cluster annotation framework
 
 **Original publisher supplement (tracked):**
@@ -82,6 +135,11 @@ invented. During formal analysis, cluster assignments must either be reproduced
 from the stated Denyer workflow and reconciled with Table S2 markers/identities,
 or an original author-provided barcode mapping must be obtained and separately
 verified.
+
+This limitation concerns **published per-cell cluster identity**, not replicate
+identity. Rep1/rep2 metadata were recovered independently through the validated
+Shahan Data S3 barcode crosswalk described above; no published cluster label was
+inferred from that source.
 
 ## Denyer et al. protoplasting reference
 

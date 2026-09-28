@@ -9,6 +9,8 @@ Expression matrix: 135 x 11
 Strong candidates: 56
 Strong cutoff: delta_z >= 1 and preferred-population detection_rate >= 0.10
 Heatmap gene order only: Euclidean distance + ward.D2 clustering within interaction direction
+Project 1 significant positive-interaction GO terms: 7
+Project 1 GO source: data/FULL_interaction_GO_enrichment_positive.tsv
 Pathway GO-term x gene rows: 36
 Pathway unique genes: 13
 Pathway population-summary rows: 20

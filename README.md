@@ -2,8 +2,10 @@
 
 This project asks where genes with a **BRL3 genotype × drought interaction**
 from Project 1 are normally detected across Arabidopsis root cell populations.
-It uses the untreated wild-type root single-cell atlas from Denyer et al.
-(2019; GSE123818) to provide cellular context for the bulk RNA-seq signal.
+It uses the normal wild-type root single-cell atlas from Denyer et al. (2019;
+GSE123818), without drought or BRL3 perturbation, to provide cellular context
+for the bulk RNA-seq signal. The atlas cells were isolated by protoplasting,
+which is evaluated explicitly as a sensitivity analysis below.
 
 ## Analysis overview
 
@@ -27,6 +29,7 @@ The main inputs are:
 
 - GSE123818 wild-type count matrix: 27,629 TAIR features × 4,727 cells.
 - Project 1 interaction-gene table: 137 genes.
+- Project 1 positive-interaction GO enrichment table: 7 significant terms.
 - Denyer et al. Supplementary Tables S1 and S2.
 - A 3,545-gene protoplasting-induced reference set defined by
   `log2FC > 1` and `q < 0.05` in Denyer Table S1.
@@ -120,8 +123,13 @@ population; 56 genes meet both criteria. In Figure 10, Negative interactions
 are circles and Positive interactions are triangles.
 
 Figure 11 summarizes the preferred-population distribution of genes in seven
-previously selected positive-interaction GO terms. It is a descriptive pathway
-cellular-context view, not a new pathway-enrichment test.
+significant positive-interaction GO terms read directly from the tracked
+Project 1 enrichment output,
+[`data/FULL_interaction_GO_enrichment_positive.tsv`](data/FULL_interaction_GO_enrichment_positive.tsv).
+The source table is also available in the
+[Project 1 repository](https://github.com/YuntongMeng/arabidopsis-drought-rnaseq/blob/main/results/FULL_interaction_GO_enrichment_positive.tsv).
+Figure 11 is a descriptive pathway cellular-context view, not a new
+pathway-enrichment test.
 
 ## Robustness checks
 
@@ -185,7 +193,8 @@ protoplasting sensitivity.
 
 ## Interpretation boundary
 
-This is an untreated, normal wild-type atlas. It identifies cell populations
+This is a normal wild-type atlas without drought or BRL3 perturbation; its cells
+were nevertheless isolated by protoplasting. It identifies cell populations
 that normally express the bulk interaction candidates and adds cellular context
 to the Project 1 result. It cannot demonstrate that the BRL3 × drought effect
 occurs within a preferred population; that would require genotype- and
