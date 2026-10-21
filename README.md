@@ -9,7 +9,7 @@ I test as a sensitivity analysis below.
 
 Related repositories: [Project 1](https://github.com/YuntongMeng/arabidopsis-drought-rnaseq) · [Project 3](https://github.com/YuntongMeng/arabidopsis-root-multiome).
 
-## Key biological findings
+## Key findings
 
 - Of the 137 Project 1 interaction genes, **135 were detected** in the atlas and
   could be compared across 11 broad root cell populations.
@@ -76,7 +76,7 @@ data/reference/Shahan2022_DataS3_WT_atlas_metadata.xltx
 Publisher archive:
 <https://ars.els-cdn.com/content/image/1-s2.0-S1534580722000338-mmc3.zip>
 
-## Running the complete workflow
+## Running the analysis
 
 Start R in the project root and run:
 
@@ -211,8 +211,22 @@ flagged. After flagged genes are removed, the other GO terms often have only two
 genes left. The Mature/Stele context does not disappear, but with so few,
 overlapping genes this is a sensitivity check, not independent confirmation.
 
-## Outputs
+## Interpretation boundary
 
+This is a normal wild-type atlas without drought or BRL3 perturbation, and its
+cells were isolated by protoplasting. It shows which cell populations normally
+express the Project 1 interaction genes. It cannot show that the BRL3 × drought
+effect happens within a preferred population; that would need genotype- and
+drought-resolved single-cell data. Population sizes and the relative-expression
+scoring also limit how far the population preferences can be read.
+
+## Outputs and repository structure
+
+- [`scripts`](scripts): the four workflow scripts, run in numerical order.
+- [`data`](data): Project 1 inputs, the Denyer et al. reference tables and the
+  recovered replicate map (the GEO count matrix is restored locally; see Inputs
+  and provenance).
+- [`docs`](docs): data sources and the original Denyer supplementary files.
 - [`results/figures`](results/figures): QC, clustering, annotation,
   interaction-gene, pathway-context, and replicate UMAP figures (Figures
   01–12; PNG/PDF where applicable).
@@ -228,14 +242,15 @@ It records the expected counts and the interpretation boundaries for direct
 cross-validation, suffix inference, replicate mixing, marker stability, and
 protoplasting sensitivity.
 
-## Interpretation boundary
+## Data and attribution
 
-This is a normal wild-type atlas without drought or BRL3 perturbation, and its
-cells were isolated by protoplasting. It shows which cell populations normally
-express the Project 1 interaction genes. It cannot show that the BRL3 × drought
-effect happens within a preferred population; that would need genotype- and
-drought-resolved single-cell data. Population sizes and the relative-expression
-scoring also limit how far the population preferences can be read.
+This is an independent computational reanalysis of public data. The
+single-cell experiment, plant material, sequencing and the conclusions of the
+original publication belong to its authors (Denyer et al., 2019). The scripts,
+statistics, figures and interpretations here come from this reanalysis.
+
+I did this as a bioinformatics training and reproducibility exercise, not as an
+experimental replication of the original study.
 
 ## References
 
