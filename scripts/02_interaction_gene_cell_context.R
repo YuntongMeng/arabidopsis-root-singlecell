@@ -459,7 +459,7 @@ if (!all(required_go_columns %in% names(project1_positive_go))) {
   )
 }
 
-# Preserve the previously approved Figure 11 presentation order. This vector
+# Keep the Figure 11 presentation order used in earlier versions. This vector
 # controls display only; the seven selected terms and their expected counts
 # come from the tracked Project 1 enrichment table.
 pathway_display_go_ids <- c(

@@ -2,10 +2,12 @@
 
 This project asks where genes with a **BRL3 genotype × drought interaction**
 from Project 1 are normally detected across Arabidopsis root cell populations.
-It uses the normal wild-type root single-cell atlas from Denyer et al. (2019;
-GSE123818), without drought or BRL3 perturbation, to provide cellular context
-for the bulk RNA-seq signal. The atlas cells were isolated by protoplasting,
-which is evaluated explicitly as a sensitivity analysis below.
+I used the wild-type root single-cell atlas from Denyer et al. (2019;
+GSE123818) to give the bulk RNA-seq signal some cellular context. The atlas has
+no drought or BRL3 samples, and its cells were isolated by protoplasting, which
+I test as a sensitivity analysis below.
+
+Related repositories: [Project 1](https://github.com/YuntongMeng/arabidopsis-drought-rnaseq) · [Project 3](https://github.com/YuntongMeng/arabidopsis-root-multiome).
 
 ## Key biological findings
 
@@ -21,10 +23,6 @@ which is evaluated explicitly as a sensitivity analysis below.
   projects: *AtGolS2* was Mature-preferred, *ANAC019*, *ANAC072*, and *KIN1*
   were Stele-preferred, and *LTI30* was Mature-like-preferred in this atlas.
 
-These are normal-expression contexts, not measurements of drought responses in
-individual cell types. Population size, relative-expression scoring, and
-protoplasting sensitivity all constrain the interpretation.
-
 ## Analysis overview
 
 The final workflow contains four scripts, which are intended to be run in
@@ -37,9 +35,9 @@ numerical order from the project root:
 | `scripts/02_interaction_gene_cell_context.R` | Adds population-level context for Project 1 interaction genes and summarizes seven selected GO pathways | 135 detected genes; 1,485 gene-population summaries; 56 exploratory strong candidates; 7 pathway contexts |
 | `scripts/03_robustness_checks.R` | Checks replicate mixing, marker-cutoff stability, and protoplasting sensitivity | 4,685/4,685 cells labelled; 14/14 marker matches stable; expected protoplasting overlaps reproduced |
 
-Scripts 01 and 02 keep the previously selected clustering, annotation, and
-candidate thresholds unchanged. Script 03 is a sensitivity workflow and does
-not redefine the main analysis.
+Scripts 01 and 02 run the main analysis with the clustering, annotation and
+candidate thresholds I chose earlier. Script 03 only adds sensitivity checks and
+does not change the main analysis.
 
 ## Inputs and provenance
 
@@ -90,8 +88,8 @@ source("scripts/03_robustness_checks.R")
 ```
 
 The same scripts can be run separately with `Rscript`. Scripts 02 and 03
-reconstruct their required upstream objects when run from a clean R session;
-therefore, they do not depend on an undocumented interactive workspace.
+rebuild the objects they need when started from a clean R session, so they do
+not rely on anything left over in an interactive workspace.
 
 Core R packages include Seurat, Matrix, dplyr, tidyr, ggplot2, readxl,
 AnnotationDbi, and org.At.tair.db. Verified package versions and session
@@ -100,7 +98,7 @@ information are stored under [`results/reproducibility`](results/reproducibility
 The message
 `'select()' returned 1:many mapping between keys and columns` is expected when
 GO annotations are queried because one TAIR gene can map to multiple GO terms.
-It is not an error; downstream dimensions and counts are checked explicitly.
+It is not an error; the scripts check the downstream dimensions and counts.
 
 ## Main analysis
 
@@ -110,8 +108,8 @@ QC removes 42 extreme high-count/high-feature cells, retaining 4,685 of 4,727
 cells. Filtering uses `nCount_RNA < 220000` and `nFeature_RNA < 11000`; no hard
 organelle-percentage cutoff is applied. The workflow uses LogNormalize with a
 scale factor of 10,000, 2,000 variable genes, PCs 1–25, clustering resolution
-0.5, and fixed random seeds. Exactly 15 clusters are not forced: the independent
-analysis produces 14 computational clusters.
+0.5, and fixed random seeds. The number of clusters was not forced to match the
+original 15; this analysis produced 14.
 
 Positive cluster markers (`min.pct = 0.25`, `logfc.threshold = 0.25`) are ranked
 by log2 fold change. Each reconstructed cluster's top 100 markers is compared
@@ -167,11 +165,11 @@ fatty-acid metabolism are split evenly between Mature and Stele among the four
 genes in each term. These small, overlapping gene sets should be treated as
 hypothesis-generating cellular context rather than independent pathway evidence.
 
-Protoplasting provides the main biological caution: 27 of 55 detected positive
-interaction genes and 20 of 56 strong candidates overlap the induced reference
-set. The Mature/Stele pattern is not completely removed by this sensitivity
-analysis, but the remaining pathway sets are too small to support a strong
-mechanistic claim.
+Protoplasting is the main biological caution. It flags nearly half of the
+detected positive interaction genes (see
+[Protoplasting sensitivity](#protoplasting-sensitivity)). The Mature/Stele
+pattern does not disappear when flagged genes are removed, but the remaining
+pathway sets are too small to support a strong mechanistic claim.
 
 ## Robustness checks
 
@@ -186,19 +184,17 @@ The replicate crosswalk contains 4,727 unique full barcodes:
 - All 4,685 QC-passed cells receive a replicate label, with both replicates
   represented in all 14 clusters and all 11 broad populations.
 
-The supported interpretation is **no obvious replicate-driven segregation and
-broad mixing**. This visual/compositional sanity check does not establish the
-complete absence of batch effects and is not replicate-level differential
-testing.
+I see no obvious replicate-driven segregation, and the two replicates are
+broadly mixed. This is a visual and compositional sanity check. It cannot rule
+out batch effects and is not replicate-level differential testing.
 
 ### Marker-cutoff sensitivity
 
-The existing annotation evidence is compared fairly at three equal-size
-cutoffs: reconstructed top 50 versus Denyer top 50, top 100 versus top 100, and
-top 200 versus top 200. Jaccard is calculated as
-`overlap / (2 × cutoff - overlap)`. All 14 reconstructed clusters retain the
-same best Denyer match at all three cutoffs. This supports the stability of the
-existing matching and does not redefine annotation.
+I compared the annotation evidence at three equal-size cutoffs: reconstructed
+top 50 versus Denyer top 50, top 100 versus top 100, and top 200 versus top 200. Jaccard is calculated as
+`overlap / (2 × cutoff - overlap)`. All 14 reconstructed clusters keep the same
+best Denyer match at all three cutoffs, so the matching is stable. The
+annotation itself was not changed by this check.
 
 ### Protoplasting sensitivity
 
@@ -209,12 +205,11 @@ The protoplasting-induced reference flags:
 - 13/80 Negative interaction genes (16.2%).
 - 27/55 Positive interaction genes (49.1%).
 
-Protoplasting is therefore an important confounder, particularly for positive
-interaction and stress-related genes. The `cold acclimation` term is fully
-flagged (3/3). After flagged genes are excluded, the other surviving GO terms
-often contain only two genes. Mature/Stele context is not completely removed,
-but this small-n, overlapping-gene result is sensitivity evidence rather than
-strong independent confirmation.
+So protoplasting is an important confounder, especially for positive
+interaction and stress-related genes. All three `cold acclimation` genes are
+flagged. After flagged genes are removed, the other GO terms often have only two
+genes left. The Mature/Stele context does not disappear, but with so few,
+overlapping genes this is a sensitivity check, not independent confirmation.
 
 ## Outputs
 
@@ -235,16 +230,22 @@ protoplasting sensitivity.
 
 ## Interpretation boundary
 
-This is a normal wild-type atlas without drought or BRL3 perturbation; its cells
-were nevertheless isolated by protoplasting. It identifies cell populations
-that normally express the bulk interaction candidates and adds cellular context
-to the Project 1 result. It cannot demonstrate that the BRL3 × drought effect
-occurs within a preferred population; that would require genotype- and
-drought-resolved single-cell data.
+This is a normal wild-type atlas without drought or BRL3 perturbation, and its
+cells were isolated by protoplasting. It shows which cell populations normally
+express the Project 1 interaction genes. It cannot show that the BRL3 × drought
+effect happens within a preferred population; that would need genotype- and
+drought-resolved single-cell data. Population sizes and the relative-expression
+scoring also limit how far the population preferences can be read.
 
-## Citation
+## References
 
 Denyer T, Ma X, Klesen S, Scacchi E, Nieselt K, Timmermans MCP. 2019.
 *Spatiotemporal Developmental Trajectories in the Arabidopsis Root Revealed
 Using High-Throughput Single-Cell RNA Sequencing.* Developmental Cell 48:
 840–852.e5. <https://doi.org/10.1016/j.devcel.2019.02.022>
+
+Shahan R, Hsu CW, Nolan TM, Cole BJ, Taylor IW, Greenstreet L, Zhang S,
+Afanassiev A, Vlot AHC, Schiebinger G, Benfey PN, Ohler U. 2022. *A single-cell
+Arabidopsis root atlas reveals developmental trajectories in wild-type and cell
+identity mutants.* Developmental Cell 57: 543–560.e9.
+<https://doi.org/10.1016/j.devcel.2022.01.008>
