@@ -7,7 +7,7 @@ GSE123818) to give the bulk RNA-seq signal some cellular context. The atlas has
 no drought or BRL3 samples, and its cells were isolated by protoplasting, which
 I test as a sensitivity analysis below.
 
-Related repositories: [Project 1](https://github.com/YuntongMeng/arabidopsis-drought-rnaseq) · [Project 3](https://github.com/YuntongMeng/arabidopsis-root-multiome).
+Related repositories: [Project 1](https://github.com/YuntongMeng/arabidopsis-drought-rnaseq) · [Project 3](https://github.com/YuntongMeng/arabidopsis-root-multiome). Part of [Arabidopsis root omics](https://github.com/YuntongMeng/arabidopsis-root-omics).
 
 ## Key findings
 
